@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/hooks/use-toast'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function PnLLinkGenerator() {
   const [tokenAddress, setTokenAddress] = useState(() => {
@@ -101,24 +101,25 @@ export default function PnLLinkGenerator() {
           <Button onClick={generateLink} className="w-full">Generate Link</Button>
         </CardContent>
         {generatedLink && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.3 }}
-          >
-            <CardFooter className="flex flex-col space-y-2">
-              <p className="text-sm font-medium">Generated Link:</p>
-              <Link 
-                href={generatedLink} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-xs break-all bg-muted p-2 rounded hover:bg-muted/80 transition-colors"
-              >
-                {generatedLink}
-              </Link>
-              <Button onClick={copyToClipboard} variant="outline" className="w-full">Copy to Clipboard</Button>
-            </CardFooter>
-          </motion.div>
+          <CardFooter className="flex flex-col space-y-2">
+            <p className="text-sm font-medium">Generated Link:</p>
+            <div className="text-xs break-all bg-muted p-2 rounded hover:bg-muted/80 transition-colors">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={generatedLink}
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Link href={generatedLink} target="_blank" rel="noopener noreferrer">
+                    {generatedLink}
+                  </Link>
+                </motion.span>
+              </AnimatePresence>
+            </div>
+            <Button onClick={copyToClipboard} variant="outline" className="w-full">Copy to Clipboard</Button>
+          </CardFooter>
         )}
       </Card>
       <Toaster />
