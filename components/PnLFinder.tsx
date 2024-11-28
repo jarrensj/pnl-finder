@@ -10,10 +10,36 @@ import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/hooks/use-toast'
 
 export default function PnLLinkGenerator() {
-  const [tokenAddress, setTokenAddress] = useState('')
-  const [walletAddress, setWalletAddress] = useState('')
+  const [tokenAddress, setTokenAddress] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('tokenAddress') || ''
+    }
+    return ''
+  })
+  const [walletAddress, setWalletAddress] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('walletAddress') || ''
+    }
+    return ''
+  })
   const [generatedLink, setGeneratedLink] = useState('')
   const { toast } = useToast()
+
+  const handleTokenAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setTokenAddress(value)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tokenAddress', value)
+    }
+  }
+
+  const handleWalletAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setWalletAddress(value)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('walletAddress', value)
+    }
+  }
 
   const generateLink = () => {
     if (!tokenAddress || !walletAddress) {
@@ -59,7 +85,7 @@ export default function PnLLinkGenerator() {
               id="tokenAddress"
               placeholder="Enter token address"
               value={tokenAddress}
-              onChange={(e) => setTokenAddress(e.target.value)}
+              onChange={handleTokenAddressChange}
             />
           </div>
           <div className="space-y-2">
@@ -68,7 +94,7 @@ export default function PnLLinkGenerator() {
               id="walletAddress"
               placeholder="Enter wallet address"
               value={walletAddress}
-              onChange={(e) => setWalletAddress(e.target.value)}
+              onChange={handleWalletAddressChange}
             />
           </div>
           <Button onClick={generateLink} className="w-full">Generate Link</Button>
