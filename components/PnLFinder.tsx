@@ -17,6 +17,7 @@ export default function PnLLinkGenerator() {
   const [generatedLink, setGeneratedLink] = useState('')
   const [queryHistory, setQueryHistory] = useState<{ tokenAddress: string, walletAddress: string }[]>([])
   const { toast } = useToast()
+  const [animateForm, setAnimateForm] = useState(false)
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -70,6 +71,8 @@ export default function PnLLinkGenerator() {
   const populateForm = (query: { tokenAddress: string, walletAddress: string }) => {
     setTokenAddress(query.tokenAddress)
     setWalletAddress(query.walletAddress)
+    setAnimateForm(true)
+    setTimeout(() => setAnimateForm(false), 300)
   }
 
   const copyToClipboard = () => {
@@ -101,7 +104,11 @@ export default function PnLLinkGenerator() {
           <CardDescription>Generate a link to view PnL for a specific token and wallet on DexScreener</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="space-y-2">
+          <motion.div
+            animate={animateForm ? { scale: 1.05 } : { scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-2"
+          >
             <Label htmlFor="tokenAddress">Token Address</Label>
             <Input
               id="tokenAddress"
@@ -109,8 +116,12 @@ export default function PnLLinkGenerator() {
               value={tokenAddress}
               onChange={handleTokenAddressChange}
             />
-          </div>
-          <div className="space-y-2">
+          </motion.div>
+          <motion.div
+            animate={animateForm ? { scale: 1.05 } : { scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="space-y-2"
+          >
             <Label htmlFor="walletAddress">Wallet Address</Label>
             <Input
               id="walletAddress"
@@ -118,7 +129,7 @@ export default function PnLLinkGenerator() {
               value={walletAddress}
               onChange={handleWalletAddressChange}
             />
-          </div>
+          </motion.div>
           <Button onClick={generateLink} className="w-full">Generate Link</Button>
         </CardContent>
         {generatedLink && (
