@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -11,20 +11,28 @@ import { useToast } from '@/hooks/use-toast'
 import { motion, AnimatePresence } from 'framer-motion'
 
 export default function PnLLinkGenerator() {
-  const [tokenAddress, setTokenAddress] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('tokenAddress') || ''
-    }
-    return ''
-  })
-  const [walletAddress, setWalletAddress] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('walletAddress') || ''
-    }
-    return ''
-  })
+  const [tokenAddress, setTokenAddress] = useState('')
+  const [walletAddress, setWalletAddress] = useState('')
   const [generatedLink, setGeneratedLink] = useState('')
+  const [queryHistory, setQueryHistory] = useState<{ tokenAddress: string, walletAddress: string }[]>([])
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedTokenAddress = localStorage.getItem('tokenAddress') || ''
+      const storedWalletAddress = localStorage.getItem('walletAddress') || ''
+      const storedHistory = JSON.parse(localStorage.getItem('queryHistory') || '[]')
+      setTokenAddress(storedTokenAddress)
+      setWalletAddress(storedWalletAddress)
+      setQueryHistory(storedHistory)
+    }
+  }, [])
+
+  const updateQueryHistory = (newQuery: { tokenAddress: string, walletAddress: string }) => {
+    const updatedHistory = [newQuery, ...queryHistory].slice(0, 10)
+    setQueryHistory(updatedHistory)
+    localStorage.setItem('queryHistory', JSON.stringify(updatedHistory))
+  }
 
   const handleTokenAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -55,6 +63,12 @@ export default function PnLLinkGenerator() {
     const baseUrl = 'https://dexscreener.com/solana'
     const link = `${baseUrl}/${tokenAddress}?maker=${walletAddress}`
     setGeneratedLink(link)
+    updateQueryHistory({ tokenAddress, walletAddress })
+  }
+
+  const populateForm = (query: { tokenAddress: string, walletAddress: string }) => {
+    setTokenAddress(query.tokenAddress)
+    setWalletAddress(query.walletAddress)
   }
 
   const copyToClipboard = () => {
@@ -122,6 +136,25 @@ export default function PnLLinkGenerator() {
           </CardFooter>
         )}
       </Card>
+      <div className="mt-4">
+        <h2 className="text-lg font-medium mb-2">Query History</h2>
+        <ul className="space-y-2">
+          {queryHistory.map((query, index) => (
+            <li
+              key={index}
+              className="bg-gray-100 p-3 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+              onClick={() => populateForm(query)}
+            >
+              <Card className="p-2">
+                <div className="font-semibold">token: {query.tokenAddress}</div>
+                <div className="text-sm text-gray-600">
+                  wallet: {query.walletAddress.slice(0, 4)}...{query.walletAddress.slice(-4)}
+                </div>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      </div>
       <Toaster />
     </div>
   )
