@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Toaster } from '@/components/ui/toaster'
 import { useToast } from '@/hooks/use-toast'
 import { motion, AnimatePresence } from 'framer-motion'
+import { X } from "lucide-react"
 
 export default function PnLLinkGenerator() {
   const [tokenAddress, setTokenAddress] = useState('')
@@ -94,7 +95,7 @@ export default function PnLLinkGenerator() {
 
   return (
     <div className="container mx-auto p-4">
-      <Card className="w-full max-w-md mx-auto">
+      <Card className="w-full max-w-md mx-auto mb-4">
         <CardHeader>
           <CardTitle>DEX Screener PnL Link Generator</CardTitle>
           <CardDescription>Generate a link to view PnL for a specific token and wallet on DexScreener</CardDescription>
@@ -142,34 +143,52 @@ export default function PnLLinkGenerator() {
           </CardFooter>
         )}
       </Card>
-      <div className="mt-4">
-        <h2 className="text-lg font-medium mb-2">Query History</h2>
-        <ul className="space-y-2">
-          {queryHistory.map((query, index) => (
-            <li
-              key={index}
-              className="bg-gray-100 p-3 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition-colors duration-200 relative"
-              onClick={() => populateForm(query)}
-            >
-              <Card className="p-2">
-                <div className="font-semibold">token: {query.tokenAddress}</div>
-                <div className="text-sm text-gray-600">
-                  wallet: {query.walletAddress.slice(0, 4)}...{query.walletAddress.slice(-4)}
-                </div>
-              </Card>
-              <button
-                className="absolute top-0 right-0 mt-1 mr-1 text-gray-500 hover:text-gray-700"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  removeQueryFromHistory(index)
-                }}
+      <Card className="w-full max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle>Query History</CardTitle>
+          <CardDescription>Your recent queries</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AnimatePresence>
+            {queryHistory.map((query, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.2 }}
               >
-                x
-              </button>
-            </li>
-          ))}
-        </ul>
-      </div>
+                <Card
+                  className="mb-2 cursor-pointer hover:bg-accent transition-colors duration-200"
+                  onClick={() => populateForm(query)}
+                >
+                  <CardContent className="p-4 flex justify-between items-center">
+                    <div>
+                      <p className="font-medium text-sm">
+                        Token: {query.tokenAddress.slice(0, 6)}...{query.tokenAddress.slice(-4)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Wallet: {query.walletAddress.slice(0, 6)}...{query.walletAddress.slice(-4)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        removeQueryFromHistory(index)
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </CardContent>
+      </Card>
       <Toaster />
     </div>
   )
