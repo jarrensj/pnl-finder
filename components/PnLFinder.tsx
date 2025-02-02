@@ -86,6 +86,12 @@ export default function PnLLinkGenerator() {
     })
   }
 
+  const removeQueryFromHistory = (index: number) => {
+    const updatedHistory = queryHistory.filter((_, i) => i !== index)
+    setQueryHistory(updatedHistory)
+    localStorage.setItem('queryHistory', JSON.stringify(updatedHistory))
+  }
+
   return (
     <div className="container mx-auto p-4">
       <Card className="w-full max-w-md mx-auto">
@@ -142,7 +148,7 @@ export default function PnLLinkGenerator() {
           {queryHistory.map((query, index) => (
             <li
               key={index}
-              className="bg-gray-100 p-3 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition-colors duration-200"
+              className="bg-gray-100 p-3 rounded-lg shadow-md cursor-pointer hover:bg-gray-200 transition-colors duration-200 relative"
               onClick={() => populateForm(query)}
             >
               <Card className="p-2">
@@ -151,6 +157,15 @@ export default function PnLLinkGenerator() {
                   wallet: {query.walletAddress.slice(0, 4)}...{query.walletAddress.slice(-4)}
                 </div>
               </Card>
+              <button
+                className="absolute top-0 right-0 mt-1 mr-1 text-gray-500 hover:text-gray-700"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  removeQueryFromHistory(index)
+                }}
+              >
+                x
+              </button>
             </li>
           ))}
         </ul>
