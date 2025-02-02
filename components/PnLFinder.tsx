@@ -31,9 +31,28 @@ export default function PnLLinkGenerator() {
   }, [])
 
   const updateQueryHistory = (newQuery: { tokenAddress: string, walletAddress: string }) => {
-    const updatedHistory = [newQuery, ...queryHistory].slice(0, 10)
-    setQueryHistory(updatedHistory)
-    localStorage.setItem('queryHistory', JSON.stringify(updatedHistory))
+    const existingIndex = queryHistory.findIndex(
+      query => query.tokenAddress === newQuery.tokenAddress && query.walletAddress === newQuery.walletAddress
+    );
+
+    let updatedHistory;
+    if (existingIndex !== -1) {
+      // if the query already exists, remove it from its current position
+      updatedHistory = [
+        newQuery,
+        ...queryHistory.slice(0, existingIndex),
+        ...queryHistory.slice(existingIndex + 1)
+      ];
+    } else {
+      // if the query is new, add it to the top
+      updatedHistory = [newQuery, ...queryHistory];
+    }
+
+    // limit to 10
+    updatedHistory = updatedHistory.slice(0, 10);
+
+    setQueryHistory(updatedHistory);
+    localStorage.setItem('queryHistory', JSON.stringify(updatedHistory));
   }
 
   const handleTokenAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
